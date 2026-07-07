@@ -4,7 +4,7 @@
     "sessionStart": [
       {
         "type": "command",
-        "bash": "./.github/hooks/scripts/log-hook-event.sh sessionStart",
+        "bash": "bash ./.github/hooks/scripts/log-hook-event.sh sessionStart",
         "powershell": "./.github/hooks/scripts/log-hook-event.ps1 -HookName sessionStart",
         "cwd": ".",
         "timeoutSec": 5
@@ -13,7 +13,7 @@
     "preToolUse": [
       {
         "type": "command",
-        "bash": "./.github/hooks/scripts/log-hook-event.sh preToolUse",
+        "bash": "bash ./.github/hooks/scripts/log-hook-event.sh preToolUse",
         "powershell": "./.github/hooks/scripts/log-hook-event.ps1 -HookName preToolUse",
         "cwd": ".",
         "timeoutSec": 5
@@ -22,7 +22,7 @@
     "postToolUse": [
       {
         "type": "command",
-        "bash": "./.github/hooks/scripts/log-hook-event.sh postToolUse",
+        "bash": "bash ./.github/hooks/scripts/log-hook-event.sh postToolUse",
         "powershell": "./.github/hooks/scripts/log-hook-event.ps1 -HookName postToolUse",
         "cwd": ".",
         "timeoutSec": 5
@@ -31,7 +31,7 @@
     "sessionEnd": [
       {
         "type": "command",
-        "bash": "./.github/hooks/scripts/log-hook-event.sh sessionEnd",
+        "bash": "bash ./.github/hooks/scripts/log-hook-event.sh sessionEnd",
         "powershell": "./.github/hooks/scripts/log-hook-event.ps1 -HookName sessionEnd",
         "cwd": ".",
         "timeoutSec": 5

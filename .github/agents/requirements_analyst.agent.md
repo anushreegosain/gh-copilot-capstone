@@ -1,7 +1,7 @@
 ---
 name: "Requirements-Analyst"
 description: "Uses Jira MCP to read user stories from the KAN board, interactive-clarify scope gaps, and generate/commit local documentation."
-tools: [read, search, agent, todo]
+tools: [mcp_atlassian-mcp_getAccessibleAtlassianResources, mcp_atlassian-mcp_getJiraIssue, mcp_atlassian-mcp_search, manage_todo_list]
 model: auto
 ---
 
