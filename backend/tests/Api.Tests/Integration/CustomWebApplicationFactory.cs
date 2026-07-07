@@ -1,12 +1,15 @@
+using Api.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Api.Tests.Integration;
 
 /// <summary>
 /// Custom web application factory for integration testing.
-/// Configures the test server with testing environment settings.
-/// Future: Add in-memory database configuration when DbContext is implemented.
+/// Replaces the SQL Server DbContext with an in-memory database so auth flows can run locally.
 /// </summary>
 public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
@@ -16,14 +19,13 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
         webHostBuilder.ConfigureServices(serviceCollection =>
         {
-            // Future: Replace real DbContext with InMemory provider
-            // var existingDbDescriptor = serviceCollection.SingleOrDefault(
-            //     descriptor => descriptor.ServiceType == typeof(DbContextOptions<AppDbContext>));
-            // if (existingDbDescriptor != null)
-            //     serviceCollection.Remove(existingDbDescriptor);
-            //
-            // serviceCollection.AddDbContext<AppDbContext>(dbOptions =>
-            //     dbOptions.UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}"));
+            serviceCollection.RemoveAll(typeof(DbContextOptions<AppDbContext>));
+            serviceCollection.RemoveAll(typeof(AppDbContext));
+
+            serviceCollection.AddDbContext<AppDbContext>(options =>
+            {
+                options.UseInMemoryDatabase("AuthIntegrationTestsDb");
+            });
         });
     }
 }
