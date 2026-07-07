@@ -32,15 +32,34 @@ $rawInput = if ($pipelineChunks.Count -gt 0) {
 } else {
     [Console]::In.ReadToEnd()
 }
+
+# Remove non-printable/control characters that may break JSON parsing
+if ($rawInput -ne $null) {
+    $rawInput = $rawInput -replace '[^\u0009\u000A\u000D\u0020-\uFFFF]', ''
+}
+
 $payload = $null
 
 if (-not [string]::IsNullOrWhiteSpace($rawInput)) {
     try {
         $payload = $rawInput | ConvertFrom-Json -Depth 50
     } catch {
-        $payload = @{
-            parseError = "Invalid JSON input"
-            raw = $rawInput
+        # Try to handle the case where the incoming payload is a JSON-encoded string (e.g. "{...}")
+        try {
+            $maybeString = $rawInput | ConvertFrom-Json -Depth 50 -ErrorAction Stop
+            if ($maybeString -is [string]) {
+                try {
+                    $payload = $maybeString | ConvertFrom-Json -Depth 50
+                } catch {
+                    # Provide the JSON parsing error message as detail, but always preserve raw input
+                    $errMsg = $_.Exception.Message
+                    $payload = @{ raw = $rawInput; parseErrorDetail = $errMsg }
+                }
+            } else {
+                $payload = @{ raw = $rawInput }
+            }
+        } catch {
+            $payload = @{ raw = $rawInput }
         }
     }
 }

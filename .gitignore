@@ -32,7 +32,8 @@ coverage*.xml
 
 # IDE
 .idea/
-.vscode/
+.vscode/*
+!.vscode/mcp.json
 *.swp
 *~
 
