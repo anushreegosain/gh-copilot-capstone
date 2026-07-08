@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SDLC Report — Data Labeling Service (EPMCDMETST-42034)</title>
+  <style>
+    :root {
+      --bg:        #0d1117;
+      --bg-card:   #161b22;
+      --bg-hover:  #1c2330;
+      --border:    #30363d;
+      --accent:    #58a6ff;
+      --accent2:   #3fb950;
+      --accent3:   #d29922;
+      --accent4:   #f85149;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --tag-bg:    #1f3a5f;
+      --tag-border:#388bfd;
+      --pill-pass: #1a3a26;
+      --pill-fail: #3a1a1a;
+      --pill-warn: #3a2a1a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(135deg, #0d1117 0%, #161b22 60%, #1c2330 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 2rem 2.5rem 1.5rem;
+    }
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+    header p.subtitle { color: var(--muted); font-size: 0.95rem; }
+    header .meta { display: flex; gap: 1.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
+    header .meta span { font-size: 0.8rem; color: var(--muted); }
+    header .meta span strong { color: var(--text); }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem 2.5rem; }
+
+    /* ── Summary tiles ──────────────────────────────────────── */
+    .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .tile {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1rem;
+      text-align: center;
+      transition: background 0.15s;
+    }
+    .tile:hover { background: var(--bg-hover); }
+    .tile .num { font-size: 2rem; font-weight: 700; }
+    .tile .num.green  { color: var(--accent2); }
+    .tile .num.blue   { color: var(--accent); }
+    .tile .num.yellow { color: var(--accent3); }
+    .tile .num.red    { color: var(--accent4); }
+    .tile .label { font-size: 0.78rem; color: var(--muted); margin-top: 0.25rem; }
+
+    /* ── Section headings ───────────────────────────────────── */
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      margin: 2rem 0 1rem;
+    }
+    h2 .dot {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+    }
+    .dot.green  { background: var(--accent2); }
+    .dot.blue   { background: var(--accent); }
+    .dot.yellow { background: var(--accent3); }
+    .dot.purple { background: #a371f7; }
+
+    /* ── Phase table ────────────────────────────────────────── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-bottom: 1rem;
+    }
+    th {
+      background: var(--bg-card);
+      color: var(--muted);
+      font-weight: 600;
+      text-align: left;
+      padding: 0.6rem 0.8rem;
+      border-bottom: 2px solid var(--border);
+    }
+    td {
+      padding: 0.55rem 0.8rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:hover td { background: var(--bg-hover); }
+
+    /* ── Badges ─────────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 0.18rem 0.55rem;
+      border-radius: 20px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge.completed { background: var(--pill-pass); color: var(--accent2); border: 1px solid #2ea043; }
+    .badge.in-progress { background: #1f2d44; color: var(--accent); border: 1px solid #388bfd; }
+    .badge.pass  { background: var(--pill-pass); color: var(--accent2); border: 1px solid #2ea043; }
+    .badge.warn  { background: var(--pill-warn); color: var(--accent3); border: 1px solid #9e6a03; }
+    .badge.fixed { background: #1a2a3a; color: #79c0ff; border: 1px solid #388bfd; }
+    .badge.critical { background: var(--pill-fail); color: var(--accent4); border: 1px solid #f85149; }
+
+    /* ── Links ──────────────────────────────────────────────── */
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Tag chips ──────────────────────────────────────────── */
+    .chip {
+      display: inline-block;
+      background: var(--tag-bg);
+      border: 1px solid var(--tag-border);
+      color: var(--accent);
+      border-radius: 4px;
+      padding: 0.1rem 0.4rem;
+      font-size: 0.73rem;
+      margin: 0.1rem;
+    }
+
+    /* ── Code block ─────────────────────────────────────────── */
+    .code-block {
+      background: #010409;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.82rem;
+      color: #c9d1d9;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+    }
+    .code-block .kw  { color: #ff7b72; }
+    .code-block .str { color: #a5d6ff; }
+    .code-block .cmt { color: #6e7681; font-style: italic; }
+    .code-block .ann { color: #d2a8ff; }
+
+    /* ── Artifact card ──────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .card p  { font-size: 0.87rem; color: var(--muted); }
+    .card .links { margin-top: 0.75rem; display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+    /* ── Finding row ────────────────────────────────────────── */
+    .finding { display: flex; gap: 0.75rem; align-items: baseline; padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
+    .finding:last-child { border-bottom: none; }
+    .finding .id { font-size: 0.78rem; color: var(--muted); min-width: 5.5rem; }
+    .finding .desc { font-size: 0.87rem; flex: 1; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2.5rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── HEADER ──────────────────────────────────────────────── -->
+<header>
+  <h1>&#127775; SDLC Report — Data Labeling Service</h1>
+  <p class="subtitle">End-to-End Agentic Development Lifecycle · Capstone Project</p>
+  <div class="meta">
+    <span><strong>Epic:</strong> <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42034">EPMCDMETST-42034</a></span>
+    <span><strong>Branch:</strong> feat/EPMCDMETST-42034-data-labeling</span>
+    <span><strong>MR:</strong> <a href="https://git.epam.com/kranthiveer_tummuri/copilot_capstone_project/-/merge_requests/3">#3 on GitLab</a></span>
+    <span><strong>Stack:</strong> Spring Boot 2.7.18 · Java 11 · MongoDB · React</span>
+    <span><strong>Generated:</strong> 2025 · GitHub Copilot Agent</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ─── SUMMARY TILES ─────────────────────────────────────── -->
+  <div class="tiles">
+    <div class="tile">
+      <div class="num green">8</div>
+      <div class="label">SDLC Phases<br/>Completed</div>
+    </div>
+    <div class="tile">
+      <div class="num blue">14</div>
+      <div class="label">Jira Tickets<br/>(Epics + Stories)</div>
+    </div>
+    <div class="tile">
+      <div class="num blue">50</div>
+      <div class="label">Test Cases<br/>Authored</div>
+    </div>
+    <div class="tile">
+      <div class="num green">18</div>
+      <div class="label">Unit Tests<br/>Passing</div>
+    </div>
+    <div class="tile">
+      <div class="num green">1</div>
+      <div class="label">Smoke Automation<br/>Test</div>
+    </div>
+    <div class="tile">
+      <div class="num yellow">8</div>
+      <div class="label">Code Review<br/>Findings</div>
+    </div>
+    <div class="tile">
+      <div class="num green">4</div>
+      <div class="label">Critical/Major<br/>Findings Fixed</div>
+    </div>
+    <div class="tile">
+      <div class="num green">60</div>
+      <div class="label">Source Files<br/>Committed</div>
+    </div>
+  </div>
+
+  <!-- ─── PHASE TABLE ───────────────────────────────────────── -->
+  <h2><span class="dot green"></span>ADLC Lifecycle Phases</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Phase</th>
+        <th>Status</th>
+        <th>Key Artifacts</th>
+        <th>Gate Decision</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Discovery &amp; Goal Decomposition</td>
+        <td><span class="badge completed">Completed</span></td>
+        <td>Discovery notes · Requirements draft · 14 Jira tickets</td>
+        <td><span class="badge pass">Approved</span></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Agent Architecture &amp; Topology Design</td>
+        <td><span class="badge completed">Completed</span></td>
+        <td><a href="https://kranthiveertummuri.atlassian.net/wiki/spaces/~63a571de030d706ab0e33cbf/pages/11337729">Architecture Doc</a> · Confluence page 11337729</td>
+        <td><span class="badge pass">Approved</span></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Knowledge &amp; Tool Engineering</td>
+        <td><span class="badge completed">Completed</span></td>
+        <td>50 test cases · <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42050">EPMCDMETST-42050–42100</a></td>
+        <td><span class="badge pass">Approved</span></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Agent Development &amp; Prompt Engineering</td>
+        <td><span class="badge completed">Completed</span></td>
+        <td>Pre-implementation gate · Jira tickets updated (4 Epics, 10 Stories, 50 Tests)</td>
+        <td><span class="badge pass">Approved</span></td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Orchestration &amp; Workflow Implementation</td>
+        <td><span class="badge completed">Completed</span></td>
+        <td>41 source files · Wave 0 scaffold · 18 unit tests passing · <code>.gitignore</code></td>
+        <td><span class="badge pass">Approved</span></td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Evaluation &amp; Testing (Evals)</td>
+        <td><span class="badge completed">Completed</span></td>
+        <td>18/18 unit tests pass · 1 Cucumber smoke test (TC-DL-006)</td>
+        <td><span class="badge pass">Approved</span></td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Safety, Guardrails &amp; Alignment</td>
+        <td><span class="badge completed">Completed</span></td>
+        <td>Code review · 8 findings · 4 Critical/Major fixed · MR <a href="https://git.epam.com/kranthiveer_tummuri/copilot_capstone_project/-/merge_requests/3">#3</a></td>
+        <td><span class="badge pass">Approved</span></td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Deployment, Observability &amp; Continuous Improvement</td>
+        <td><span class="badge completed">Completed</span></td>
+        <td>Feature branch pushed · MR #3 ready for merge · SDLC report</td>
+        <td><span class="badge pass">Approved</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ─── JIRA TICKETS ─────────────────────────────────────── -->
+  <h2><span class="dot blue"></span>Jira Ticket Registry</h2>
+  <div class="card">
+    <h3>Epics (4)</h3>
+    <p>
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42034">EPMCDMETST-42034</a> · Data Labeling Platform (Root Epic)<br/>
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42035">EPMCDMETST-42035</a> · Project &amp; Dataset Management<br/>
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42036">EPMCDMETST-42036</a> · Labeling &amp; Active Learning<br/>
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42037">EPMCDMETST-42037</a> · Export &amp; Monitoring
+    </p>
+  </div>
+  <div class="card">
+    <h3>User Stories (10)</h3>
+    <p>
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42038">EPMCDMETST-42038</a> — Create Labeling Project (TC-DL-006 automated) &nbsp;
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42039">–42039</a> &nbsp;
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42040">–42040</a> &nbsp;
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42041">–42041</a> &nbsp;
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42042">–42042</a> &nbsp;
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42043">–42043</a> &nbsp;
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42044">–42044</a> &nbsp;
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42045">–42045</a> &nbsp;
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42046">–42046</a> &nbsp;
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42047">–42047</a>
+    </p>
+  </div>
+  <div class="card">
+    <h3>Test Cases (50 authored in Jira)</h3>
+    <p>
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42050">EPMCDMETST-42050</a> –
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42100">EPMCDMETST-42100</a>
+      &nbsp;(TC-DL-001 through TC-DL-050, minus EPMCDMETST-42058)
+    </p>
+  </div>
+
+  <!-- ─── UNIT TESTS ────────────────────────────────────────── -->
+  <h2><span class="dot green"></span>Unit Test Results — 18 / 18 Passing</h2>
+  <table>
+    <thead>
+      <tr><th>Test Class</th><th>Tests</th><th>Status</th><th>Key Scenarios Covered</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>AuthControllerTest</code></td>
+        <td>5</td>
+        <td><span class="badge pass">PASS</span></td>
+        <td>Login success, bad credentials, missing fields, JWT validation</td>
+      </tr>
+      <tr>
+        <td><code>DatasetItemControllerTest</code></td>
+        <td>6</td>
+        <td><span class="badge pass">PASS</span></td>
+        <td>Upload items, list by project, label action, export JSONL/CSV</td>
+      </tr>
+      <tr>
+        <td><code>LabelingServiceImplTest</code></td>
+        <td>7</td>
+        <td><span class="badge pass">PASS</span></td>
+        <td>bulkLabel, cross-project validation, active learning trigger, scheduler guard</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="code-block">
+    <span class="cmt">$ mvn clean verify -q</span><br/>
+    [INFO] Tests run: <span class="str">18</span>, Failures: <span class="str">0</span>, Errors: <span class="str">0</span>, Skipped: <span class="str">0</span><br/>
+    [INFO] <span class="kw">BUILD SUCCESS</span>
+  </div>
+
+  <!-- ─── AUTOMATION TEST ───────────────────────────────────── -->
+  <h2><span class="dot purple"></span>Automation Smoke Test — TC-DL-006</h2>
+  <div class="card">
+    <h3>&#9654; POST /api/labeling/projects — Create Labeling Project</h3>
+    <p>
+      <span class="chip">@smoke</span>
+      <span class="chip">@epmcdmetst-42038</span>
+      <span class="chip">Cucumber 7.18</span>
+      <span class="chip">TestNG 7.10</span>
+      <span class="chip">RestAssured 5.4</span>
+    </p>
+    <p style="margin-top: 0.6rem;">
+      Framework: <strong>Cucumber + TestNG + RestAssured + Allure</strong> under <code>automation/</code>.<br/>
+      Runner: <code>DataLabelingTestRunner</code> · Suite: <code>testng-smoke.xml</code><br/>
+      Verifies: HTTP 200 · <code>success=true</code> · project <code>name</code> and <code>labelClasses</code> in response.
+    </p>
+    <div class="links">
+      <a href="https://git.epam.com/kranthiveer_tummuri/copilot_capstone_project/-/blob/feat/EPMCDMETST-42034-data-labeling/automation/src/test/resources/features/data-labeling-create-project.feature">Feature file &#8599;</a>
+      <a href="https://git.epam.com/kranthiveer_tummuri/copilot_capstone_project/-/blob/feat/EPMCDMETST-42034-data-labeling/automation/src/test/java/com/epam/capstone/automation/steps/DataLabelingSteps.java">Step definitions &#8599;</a>
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42038">Jira EPMCDMETST-42038 &#8599;</a>
+    </div>
+  </div>
+  <div class="code-block">
+    <span class="ann">@smoke @epmcdmetst-42038</span><br/>
+    <span class="kw">Feature:</span> Data Labeling — Create Labeling Project<br/><br/>
+    &nbsp;&nbsp;<span class="kw">Background:</span><br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">Given</span> the Data Labeling Service is running at <span class="str">"http://localhost:8080"</span><br/><br/>
+    &nbsp;&nbsp;<span class="ann">@smoke</span><br/>
+    &nbsp;&nbsp;<span class="kw">Scenario:</span> Successfully create a labeling project with valid payload<br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">Given</span> a valid create-project request with name <span class="str">"Test Project"</span> and label classes <span class="str">"CAT,DOG"</span><br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">When</span>  I send a POST request to <span class="str">"/api/labeling/projects"</span><br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">Then</span>  the response status code should be <span class="str">200</span><br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">And</span>   the response body should contain <span class="str">"success"</span> equal to <span class="kw">true</span><br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">And</span>   the response body field <span class="str">"data.name"</span> should equal <span class="str">"Test Project"</span><br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">And</span>   the response body field <span class="str">"data.labelClasses"</span> should contain <span class="str">"CAT"</span>
+  </div>
+  <p style="font-size:0.82rem; color:var(--muted); margin-top:-0.5rem;">
+    Run: <code>mvn test -Psmoke -f automation/pom.xml</code> (requires Spring Boot app on port 8080)
+  </p>
+
+  <!-- ─── CODE REVIEW ───────────────────────────────────────── -->
+  <h2><span class="dot yellow"></span>Code Review — GitLab MR #3</h2>
+  <div class="card">
+    <h3>MR: <a href="https://git.epam.com/kranthiveer_tummuri/copilot_capstone_project/-/merge_requests/3">feat/EPMCDMETST-42034-data-labeling → main (#3)</a></h3>
+    <p>8 findings identified. 4 Critical/Major resolved in commit <code>5885a28</code>. 4 Minor findings documented.</p>
+    <div style="margin-top:1rem;">
+      <div class="finding">
+        <span class="id"><span class="badge fixed">FIXED</span> FINDING-02</span>
+        <span class="desc"><strong>Critical</strong> — <code>bulkLabel()</code> silently skipped cross-project items → now throws <code>IllegalArgumentException</code> with item IDs.</span>
+      </div>
+      <div class="finding">
+        <span class="id"><span class="badge fixed">FIXED</span> FINDING-03</span>
+        <span class="desc"><strong>Critical</strong> — Concurrent retraining race condition in <code>ActiveLearningScheduler</code> → <code>ConcurrentHashMap.newKeySet()</code> guard with <code>finally</code> cleanup.</span>
+      </div>
+      <div class="finding">
+        <span class="id"><span class="badge fixed">FIXED</span> FINDING-04</span>
+        <span class="desc"><strong>Major</strong> — Multiple <code>Instant.now()</code> calls in <code>markCorrectionsProcessed</code> → single variable reused.</span>
+      </div>
+      <div class="finding">
+        <span class="id"><span class="badge fixed">FIXED</span> FINDING-05</span>
+        <span class="desc"><strong>Major</strong> — Null-unsafe <code>findByProjectId</code> result in <code>ExportServiceImpl</code> → null-safe guard added.</span>
+      </div>
+      <div class="finding">
+        <span class="id"><span class="badge warn">MINOR</span> FINDING-01</span>
+        <span class="desc"><strong>Minor</strong> — Missing <code>@Transactional</code> on <code>bulkLabel</code> for atomicity (MongoDB multi-document transactions require replica set).</span>
+      </div>
+      <div class="finding">
+        <span class="id"><span class="badge warn">MINOR</span> FINDING-06</span>
+        <span class="desc"><strong>Minor</strong> — Generic <code>Exception</code> catch in scheduler; recommend specific exception types.</span>
+      </div>
+      <div class="finding">
+        <span class="id"><span class="badge warn">MINOR</span> FINDING-07</span>
+        <span class="desc"><strong>Minor</strong> — No pagination on <code>findByProjectId</code>; large datasets could cause memory pressure.</span>
+      </div>
+      <div class="finding">
+        <span class="id"><span class="badge warn">MINOR</span> FINDING-08</span>
+        <span class="desc"><strong>Minor</strong> — <code>StreamingResponseBody</code> export closes stream inside lambda; consider try-with-resources pattern.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── GIT COMMITS ───────────────────────────────────────── -->
+  <h2><span class="dot blue"></span>Git Commit History</h2>
+  <table>
+    <thead>
+      <tr><th>SHA</th><th>Message</th><th>Files</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>fcfd3b1</code></td>
+        <td>test(EPMCDMETST-42038): add smoke automation test for create labeling project</td>
+        <td>24 files, +1524</td>
+      </tr>
+      <tr>
+        <td><code>5885a28</code></td>
+        <td>fix(EPMCDMETST-42034): address code review findings</td>
+        <td>3 files, +23</td>
+      </tr>
+      <tr>
+        <td><code>6609617</code></td>
+        <td>feat(EPMCDMETST-42034): Wave 0 data labeling implementation</td>
+        <td>60 files, +4334</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ─── ARCHITECTURE ─────────────────────────────────────── -->
+  <h2><span class="dot blue"></span>Architecture &amp; Design</h2>
+  <div class="card">
+    <h3>High-Level Design</h3>
+    <p>Layered Spring Boot REST API following Controller → Service → Repository pattern with MongoDB persistence, JWT authentication, and scheduled active learning retraining.</p>
+    <div class="links">
+      <a href="https://kranthiveertummuri.atlassian.net/wiki/spaces/~63a571de030d706ab0e33cbf/pages/11337729">Confluence Architecture Page &#8599;</a>
+      <a href="https://git.epam.com/kranthiveer_tummuri/copilot_capstone_project/-/merge_requests/3">GitLab MR #3 &#8599;</a>
+    </div>
+  </div>
+  <table>
+    <thead>
+      <tr><th>Layer</th><th>Classes</th><th>Responsibility</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Controllers</td><td><code>LabelingProjectController</code>, <code>DatasetItemController</code>, <code>ExportController</code>, <code>AuditLogController</code>, <code>AuthController</code></td><td>REST endpoints · <code>ApiResponse&lt;T&gt;</code> envelope</td></tr>
+      <tr><td>Services</td><td><code>LabelingServiceImpl</code>, <code>ExportServiceImpl</code>, <code>ActiveLearningScheduler</code></td><td>Business logic · streaming export · scheduled retraining</td></tr>
+      <tr><td>Repositories</td><td><code>LabelingProjectRepository</code>, <code>DatasetItemRepository</code>, <code>AuditLogRepository</code></td><td>Spring Data MongoDB interfaces</td></tr>
+      <tr><td>Security</td><td><code>LabelingSecurityConfig</code>, <code>JwtAuthFilter</code>, <code>JwtUtil</code></td><td>JWT bearer token auth · CSRF disabled</td></tr>
+      <tr><td>Models</td><td><code>LabelingProject</code>, <code>DatasetItem</code>, <code>AuditLog</code>, <code>LabelingAction</code></td><td>MongoDB documents</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─── LINKS ────────────────────────────────────────────── -->
+  <h2><span class="dot green"></span>Key Links</h2>
+  <div class="tiles" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
+    <div class="tile" style="text-align:left; padding: 1rem 1.25rem;">
+      <div style="font-size:0.8rem; color:var(--muted); margin-bottom:0.3rem;">GitLab MR</div>
+      <a href="https://git.epam.com/kranthiveer_tummuri/copilot_capstone_project/-/merge_requests/3" style="font-size:0.9rem;">MR #3 — feat → main &#8599;</a>
+    </div>
+    <div class="tile" style="text-align:left; padding: 1rem 1.25rem;">
+      <div style="font-size:0.8rem; color:var(--muted); margin-bottom:0.3rem;">Jira Epic</div>
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42034" style="font-size:0.9rem;">EPMCDMETST-42034 &#8599;</a>
+    </div>
+    <div class="tile" style="text-align:left; padding: 1rem 1.25rem;">
+      <div style="font-size:0.8rem; color:var(--muted); margin-bottom:0.3rem;">Confluence</div>
+      <a href="https://kranthiveertummuri.atlassian.net/wiki/spaces/~63a571de030d706ab0e33cbf/pages/11337729" style="font-size:0.9rem;">Architecture (ID 11337729) &#8599;</a>
+    </div>
+    <div class="tile" style="text-align:left; padding: 1rem 1.25rem;">
+      <div style="font-size:0.8rem; color:var(--muted); margin-bottom:0.3rem;">Repository</div>
+      <a href="https://git.epam.com/kranthiveer_tummuri/copilot_capstone_project" style="font-size:0.9rem;">copilot_capstone_project &#8599;</a>
+    </div>
+    <div class="tile" style="text-align:left; padding: 1rem 1.25rem;">
+      <div style="font-size:0.8rem; color:var(--muted); margin-bottom:0.3rem;">Test Cases</div>
+      <a href="https://jiraeu.epam.com/browse/EPMCDMETST-42050" style="font-size:0.9rem;">EPMCDMETST-42050–42100 &#8599;</a>
+    </div>
+    <div class="tile" style="text-align:left; padding: 1rem 1.25rem;">
+      <div style="font-size:0.8rem; color:var(--muted); margin-bottom:0.3rem;">Feature File</div>
+      <a href="https://git.epam.com/kranthiveer_tummuri/copilot_capstone_project/-/blob/feat/EPMCDMETST-42034-data-labeling/automation/src/test/resources/features/data-labeling-create-project.feature" style="font-size:0.9rem;">data-labeling-create-project.feature &#8599;</a>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  Generated by GitHub Copilot Agent (Claude Sonnet 4.6) &nbsp;·&nbsp;
+  ADLC Phases 1–8 Complete &nbsp;·&nbsp;
+  Project: Data Labeling Service &nbsp;·&nbsp;
+  Branch: feat/EPMCDMETST-42034-data-labeling
+</footer>
+
+</body>
+</html>

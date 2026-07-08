@@ -65,7 +65,13 @@ if (webApplication.Environment.IsDevelopment())
 // Configure middleware pipeline
 webApplication.UseCors();
 webApplication.UseTransactionId();
+
+// Add JWT authentication middleware (must come before authorization)
+webApplication.UseJwtAuth();
+
+webApplication.UseAuthentication();
 webApplication.UseAuthorization();
+
 webApplication.MapControllers();
 
 // Redirect root URL to Swagger UI for developer convenience

@@ -2,7 +2,7 @@
 name: "DevFlow"
 description: "Comprehensive end-to-end SDLC orchestration agent coordinating requirement ingestion, architecture design, review, planning, implementation, peer review, and verification."
 tools: [read, search, edit, execute, agent, todo, web]
-agents: ["Requirements-Analyst", "Architect", "Design-Reviewer", "Planner", "Engineer", "Peer-Reviewer", "Verifier", "PR-Generator"]
+agents: ["Requirements-Analyst", "Architect", "Design-Reviewer", "Planner", "Engineer", "Peer-Reviewer", "Verifier", "PR-Generator-Agent"]
 model: auto
 argument-hint: "Provide the KAN ticket key or user story to run through the entire engineering pipeline"
 ---
@@ -101,7 +101,7 @@ You are **DevFlow**, the master workflow orchestrator for. Your responsibility i
 - When backend runtime behavior is part of the scope, verification must explicitly state the startup command used, the environment/profile it resolved to, and whether environment-gated surfaces documented for local development were actually reachable.
 
 ### Stage 8: Pull Request Creation (Live Execution)
-- Delegate to `PR-Generator` using the `/pr-automation` skill.
+- Delegate to `PR-Generator-Agent` using the `/pr-automation` skill.
 - **Mandatory Actions:**
   1. Generate the PR body text covering Summary, Changes Made, Test Evidence, and Reviewer Checklist.
   2. Use your `execute` or code execution tools to ensure all changes are added and committed to a feature branch (`git add .` and `git commit`).
